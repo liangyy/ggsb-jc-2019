@@ -1,0 +1,65 @@
+---
+title: "Neighbourhood effect in MRF"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# MRF in brief
+
+Encoding $\mathbf{x}$ joint distribution where $\mathbf{x}$ dependency structure is encoded by a undirected graph $G$.
+
+General form for undirected graphical model: $\prod_{c \in G} \Pr(\mathbf{x}_c)$ where $c$ is clique in graph.
+
+General form for Markov random field: $\Pr(\mathbf{x}_c) = \frac{1}{Z} e^{-U(\mathbf{x}_c)}$. *E.g.* $U(\mathbf{x}) = a \mathbf{x}^T \mathbf{x}$
+
+In spatial analysis,
+
+1. $G$ is grid, so each node has four neighbours (except the margin) so clique is two nodes plus an edge
+2. $x_i$ is categorical
+3. $U(x_1, x_2) = \beta (1 - \mathbb{I}\{x_1 = x_2\})$ 
+
+
+# Why MRF encode spatial smoothness?
+
+Consider binary $x_0$ surrounded by $x_1, \cdots, x_4$. The goal is to see how surrounding nodes control the state of $x_0$ with $\beta$.
+
+```{r}
+get_center_prob = function(neighbours, beta, states = c(0, 1)) {
+  Vcs = rep(1, length(states))
+  for(s in 1 : length(states)) {
+    for(neighbour in neighbours) {
+      Vcs[s] = Vcs[s] * exp(-beta * (1 - (neighbour == states[s])))
+    }
+  }
+  Vcs / sum(Vcs)
+}
+states = c(0, 1)
+configures = matrix(0, ncol = 4, nrow = 5)
+for(i in 1 : 4) {
+  configures[i, i : 4] = 1
+}
+positions = c()
+for(i in c(-1, 1)) {
+  positions = rbind(positions, c(i, 0))
+  positions = rbind(positions, c(0, i))
+}
+positions = rbind(positions, c(0, 0))
+df_plot = data.frame()
+for(beta in c(0, 0.1, 0.5, 0.9, 1, 1.5, 10)) {
+  df_plot_temp = data.frame()
+  for(ci in 1 : nrow(configures)) {
+    df_plot_sub = positions
+    centerprob = get_center_prob(neighbours = configures[ci, ], beta = beta)[2]
+    df_plot_sub = cbind(df_plot_sub, c(configures[ci, ], centerprob))
+    df_plot_sub = as.data.frame(df_plot_sub)
+    df_plot_sub$beta = beta
+    df_plot_sub$config = ci
+    colnames(df_plot_sub)[1:3] = c('x', 'y', 'state')
+    df_plot_temp = rbind(df_plot_temp, df_plot_sub)
+  }
+  df_plot = rbind(df_plot, df_plot_temp)
+}
+library(ggplot2)
+ggplot(df_plot) + geom_raster(aes(x = x, y = y, fill = state)) + facet_grid(config ~ beta) + scale_fill_gradient2(low = 'blue', high = 'red', mid = 'white', midpoint = 0.5)
+```
