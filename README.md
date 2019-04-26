@@ -17,7 +17,7 @@ There are exciting improvements and applications:
 
 ## Application side
 
-1. [Super-resolution chromatin structure imaging](Super-resolution chromatin tracing reveals domains and cooperative interactions in single cells)
+1. [Super-resolution chromatin structure imaging](https://science.sciencemag.org/content/362/6413/eaau1783)
 2. [Dynamics and Spatial Genomics of the Nascent Transcriptome by Intron seqFISH](https://www.cell.com/cell/fulltext/S0092-8674(18)30647-0)
 3. [Allele-specific RNA imaging shows that allelic imbalances can arise in tissues through transcriptional bursting](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1007874)
 
